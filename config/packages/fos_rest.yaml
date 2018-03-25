@@ -1,6 +1,10 @@
 fos_rest:
     view:
         view_response_listener:  true
+    exception:
+        exception_controller: 'fos_rest.exception.controller:showAction'
+        codes:
+            Doctrine\ORM\EntityNotFoundException: 404
     format_listener:
         rules:
             - { path: ^/api, prefer_extension: true, fallback_format: json, priorities: [ json ] }

@@ -5,6 +5,7 @@ namespace App\Application\Service;
 
 use App\Domain\Model\Article\Article;
 use App\Domain\Model\Article\ArticleRepositoryInterface;
+use Doctrine\ORM\EntityNotFoundException;
 
 /**
  * Class ArticleService
@@ -28,11 +29,15 @@ final class ArticleService
 
     /**
      * @param int $articleId
-     * @return Article|null
+     * @return Article
+     * @throws EntityNotFoundException
      */
-    public function getArticle(int $articleId): ?Article
+    public function getArticle(int $articleId): Article
     {
-        return $this->articleRepository->findById($articleId);
+        $article = $this->articleRepository->findById($articleId);
+        if (!$article) {
+            throw new EntityNotFoundException('Article with id '.$articleId.' does not exist!');
+        }
     }
 
     /**
@@ -62,14 +67,16 @@ final class ArticleService
      * @param int $articleId
      * @param string $title
      * @param string $content
-     * @return Article|null
+     * @return Article
+     * @throws EntityNotFoundException
      */
-    public function updateArticle(int $articleId, string $title, string $content): ?Article
+    public function updateArticle(int $articleId, string $title, string $content): Article
     {
         $article = $this->articleRepository->findById($articleId);
         if (!$article) {
-            return null;
+            throw new EntityNotFoundException('Article with id '.$articleId.' does not exist!');
         }
+
         $article->setTitle($title);
         $article->setContent($content);
         $this->articleRepository->save($article);
@@ -79,13 +86,16 @@ final class ArticleService
 
     /**
      * @param int $articleId
+     * @throws EntityNotFoundException
      */
     public function deleteArticle(int $articleId): void
     {
         $article = $this->articleRepository->findById($articleId);
-        if ($article) {
-            $this->articleRepository->delete($article);
+        if (!$article) {
+            throw new EntityNotFoundException('Article with id '.$articleId.' does not exist!');
         }
+
+        $this->articleRepository->delete($article);
     }
 
 }
