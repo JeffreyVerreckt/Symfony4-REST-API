@@ -42,8 +42,6 @@ final class ArticleController extends FOSRestController
     {
         $article = $this->articleService->addArticle($request->get('title'), $request->get('content'));
 
-        // Todo: 400 response - Invalid Input
-        // Todo: 404 response - Resource not found
 
         // In case our POST was a success we need to return a 201 HTTP CREATED response with the created object
         return View::create($article, Response::HTTP_CREATED);
@@ -59,7 +57,6 @@ final class ArticleController extends FOSRestController
     {
         $article = $this->articleService->getArticle($articleId);
 
-        // Todo: 404 response - Resource not found
 
         // In case our GET was a success we need to return a 200 HTTP OK response with the request object
         return View::create($article, Response::HTTP_OK);
@@ -89,8 +86,6 @@ final class ArticleController extends FOSRestController
     {
         $article = $this->articleService->updateArticle($articleId, $request->get('title'), $request->get('content'));
 
-        // Todo: 400 response - Invalid Input
-        // Todo: 404 response - Resource not found
 
         // In case our PUT was a success we need to return a 200 HTTP OK response with the object as a result of PUT
         return View::create($article, Response::HTTP_OK);
@@ -106,7 +101,6 @@ final class ArticleController extends FOSRestController
     {
         $this->articleService->deleteArticle($articleId);
 
-        // Todo: 404 response - Resource not found
 
         // In case our DELETE was a success we need to return a 204 HTTP NO CONTENT response. The object is deleted.
         return View::create([], Response::HTTP_NO_CONTENT);
