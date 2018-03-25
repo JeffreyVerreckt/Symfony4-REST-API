@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Http\Rest\Controller;
 
 
+use App\Application\Service\ArticleService;
 use App\Domain\Model\Article\Article;
 use App\Domain\Model\Article\ArticleRepositoryInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -18,17 +19,17 @@ use Symfony\Component\HttpFoundation\Response;
 final class ArticleController extends FOSRestController
 {
     /**
-     * @var ArticleRepositoryInterface
+     * @var ArticleService
      */
-    private $articleRepository;
+    private $articleService;
 
     /**
      * ArticleController constructor.
-     * @param ArticleRepositoryInterface $articleRepository
+     * @param ArticleService $articleService
      */
-    public function __construct(ArticleRepositoryInterface $articleRepository)
+    public function __construct(ArticleService $articleService)
     {
-        $this->articleRepository = $articleRepository;
+        $this->articleService = $articleService;
     }
 
     /**
@@ -39,10 +40,7 @@ final class ArticleController extends FOSRestController
      */
     public function postArticle(Request $request): View
     {
-        $article = new Article();
-        $article->setTitle($request->get('title'));
-        $article->setContent($request->get('content'));
-        $this->articleRepository->save($article);
+        $article = $this->articleService->addArticle($request->get('title'), $request->get('content'));
 
         // Todo: 400 response - Invalid Input
         // Todo: 404 response - Resource not found
@@ -54,10 +52,12 @@ final class ArticleController extends FOSRestController
     /**
      * Retrieves an Article resource
      * @Rest\Get("/articles/{articleId}")
+     * @param int $articleId
+     * @return View
      */
     public function getArticle(int $articleId): View
     {
-        $article = $this->articleRepository->findById($articleId);
+        $article = $this->articleService->getArticle($articleId);
 
         // Todo: 404 response - Resource not found
 
@@ -68,10 +68,11 @@ final class ArticleController extends FOSRestController
     /**
      * Retrieves a collection of Article resource
      * @Rest\Get("/articles")
+     * @return View
      */
     public function getArticles(): View
     {
-        $articles = $this->articleRepository->findAll();
+        $articles = $this->articleService->getAllArticles();
 
         // In case our GET was a success we need to return a 200 HTTP OK response with the collection of article object
         return View::create($articles, Response::HTTP_OK);
@@ -86,12 +87,7 @@ final class ArticleController extends FOSRestController
      */
     public function putArticle(int $articleId, Request $request): View
     {
-        $article = $this->articleRepository->findById($articleId);
-        if ($article) {
-            $article->setTitle($request->get('title'));
-            $article->setContent($request->get('content'));
-            $this->articleRepository->save($article);
-        }
+        $article = $this->articleService->updateArticle($articleId, $request->get('title'), $request->get('content'));
 
         // Todo: 400 response - Invalid Input
         // Todo: 404 response - Resource not found
@@ -108,10 +104,7 @@ final class ArticleController extends FOSRestController
      */
     public function deleteArticle(int $articleId): View
     {
-        $article = $this->articleRepository->findById($articleId);
-        if ($article) {
-            $this->articleRepository->delete($article);
-        }
+        $this->articleService->deleteArticle($articleId);
 
         // Todo: 404 response - Resource not found
 
