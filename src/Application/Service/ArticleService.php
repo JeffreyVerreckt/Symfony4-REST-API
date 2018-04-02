@@ -3,6 +3,8 @@
 namespace App\Application\Service;
 
 
+use App\Application\DTO\ArticleAssembler;
+use App\Application\DTO\ArticleDTO;
 use App\Domain\Model\Article\Article;
 use App\Domain\Model\Article\ArticleRepositoryInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -20,11 +22,21 @@ final class ArticleService
     private $articleRepository;
 
     /**
+     * @var ArticleAssembler
+     */
+    private $articleAssembler;
+
+    /**
      * ArticleService constructor.
      * @param ArticleRepositoryInterface $articleRepository
+     * @param ArticleAssembler $articleAssembler
      */
-    public function __construct(ArticleRepositoryInterface $articleRepository){
+    public function __construct(
+        ArticleRepositoryInterface $articleRepository,
+        ArticleAssembler $articleAssembler
+    ) {
         $this->articleRepository = $articleRepository;
+        $this->articleAssembler = $articleAssembler;
     }
 
     /**
@@ -49,15 +61,12 @@ final class ArticleService
     }
 
     /**
-     * @param string $title
-     * @param string $content
+     * @param ArticleDTO $articleDTO
      * @return Article
      */
-    public function addArticle(string $title, string $content): Article
+    public function addArticle(ArticleDTO $articleDTO): Article
     {
-        $article = new Article();
-        $article->setTitle($title);
-        $article->setContent($content);
+        $article = $this->articleAssembler->createArticle($articleDTO);
         $this->articleRepository->save($article);
 
         return $article;
@@ -65,20 +74,17 @@ final class ArticleService
 
     /**
      * @param int $articleId
-     * @param string $title
-     * @param string $content
+     * @param ArticleDTO $articleDTO
      * @return Article
      * @throws EntityNotFoundException
      */
-    public function updateArticle(int $articleId, string $title, string $content): Article
+    public function updateArticle(int $articleId, ArticleDTO $articleDTO): Article
     {
         $article = $this->articleRepository->findById($articleId);
         if (!$article) {
             throw new EntityNotFoundException('Article with id '.$articleId.' does not exist!');
         }
-
-        $article->setTitle($title);
-        $article->setContent($content);
+        $article = $this->articleAssembler->updateArticle($article, $articleDTO);
         $this->articleRepository->save($article);
 
         return $article;

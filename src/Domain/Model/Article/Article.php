@@ -65,7 +65,7 @@ class Article
         if (\strlen($title) < 5) {
             throw new \InvalidArgumentException('Title needs to have more then 5 characters.');
         }
-        
+
         $this->title = $title;
     }
 
