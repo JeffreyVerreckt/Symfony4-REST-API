@@ -63,7 +63,7 @@ class Article
     public function setTitle(string $title): void
     {
         if (\strlen($title) < 5) {
-            throw new \InvalidArgumentException('Title needs to have more then 5 characters.');
+            throw new \InvalidArgumentException('Title needs to have 5 or more characters.');
         }
 
         $this->title = $title;
