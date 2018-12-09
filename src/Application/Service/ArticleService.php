@@ -50,6 +50,7 @@ final class ArticleService
         if (!$article) {
             throw new EntityNotFoundException('Article with id '.$articleId.' does not exist!');
         }
+        return $article;
     }
 
     /**
